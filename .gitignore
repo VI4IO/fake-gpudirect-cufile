@@ -1,0 +1,4 @@
+lib64
+include/cufile.h
+*.o
+
