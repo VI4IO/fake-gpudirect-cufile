@@ -34,11 +34,11 @@ CUfileError_t cuFileBufDeregister(const void *devPtr_base){
 }
 
 ssize_t cuFileRead(CUfileHandle_t fh, void *devPtr_base, size_t size, off_t file_offset, off_t devPtr_offset){
-  return 0;
+  return size;
 }
 
 ssize_t cuFileWrite(CUfileHandle_t fh, const void *devPtr_base, size_t size, off_t file_offset, off_t devPtr_offset){
-  return 0;
+  return size;
 }
 
 CUfileError_t cuFileDriverOpen(void){

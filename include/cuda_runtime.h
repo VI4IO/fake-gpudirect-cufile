@@ -54,8 +54,8 @@ CUresult cuGetErrorName(CUresult cu, const char ** out);
 
 cudaError_t cudaGetLastError();
 const char * cudaGetErrorString(cudaError_t err);
-cudaError_t cudaMalloc(void **device, size_t size);
-cudaError_t cudaFree(void *device);
+cudaError_t cudaMalloc(void **buf, size_t size);
+cudaError_t cudaFree(void *buf);
 const char * cudaGetErrorName(int err);
 cudaError_t cudaMemcpy(void * dst, void *src, size_t count, enum cudaMemcpyKind k);
 
