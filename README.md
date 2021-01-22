@@ -9,7 +9,7 @@ Any information about prototypes are publicly available / provided by NVIDIA.
 
 ## Build instructions
 
-You need to obtain the cufile.h header from NVIDIA and place it into the include directory.
+You need to obtain the cufile.h header from NVIDIA and place it into the include directory; this provides the best compiler checks and at the same time prevents any legal issue as the header file is copyright protected.
 The required CUDA functions are implemented as fake.
 
 ## Status
