@@ -1,17 +1,6 @@
-#include <cuda_runtime.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "fake-cufile-internal.h"
 
 static int device = 0;
-
-#define WARN(msg) printf(msg"\n");
-
-typedef struct {
-  int magic;
-  int tag;
-  char buf [];
-} fake_dev_memory;
 
 CUresult cuInit(int dev){
   device = dev;
@@ -58,14 +47,14 @@ const char * cudaGetErrorString(cudaError_t err){
 cudaError_t cudaMalloc(void **buf, size_t size){
   fake_dev_memory * mem = malloc(sizeof(fake_dev_memory) + size);
   mem->magic = 4711;
+  mem->size = size;
   *buf = (void*) mem->buf;
   return cudaSuccess;
 }
 
 cudaError_t cudaFree(void *buf){
-  fake_dev_memory * mem = (fake_dev_memory*) ((char*)buf - sizeof(fake_dev_memory));
-  if(mem->magic != 4711){
-    WARN("invalid cudaFree!");
+  fake_dev_memory * mem = fake_get_mem(buf);
+  if(! mem){
     return cudaError;
   }
   return cudaSuccess;
@@ -81,6 +70,10 @@ cudaError_t cudaMemcpy(void * dst, void *src, size_t count, enum cudaMemcpyKind 
 }
 
 cudaError_t cudaMemset(void* buf, int val, size_t count){
+  fake_dev_memory * mem = fake_get_mem(buf);
+  if(! mem){
+    return cudaError;
+  }  
   memset(buf, val, count);
   return cudaSuccess;
 }
@@ -93,4 +86,12 @@ cudaError_t cudaSetDevice(int dev){
 cudaError_t cudaGetDevice(int *dev){
   *dev = device;
   return cudaSuccess;
+}
+
+fake_dev_memory * fake_get_mem(void * buf){
+    fake_dev_memory * mem = (fake_dev_memory*) ((char*)buf - sizeof(fake_dev_memory));
+    if(mem->magic != 4711){
+      return NULL;
+    }
+    return mem;
 }
