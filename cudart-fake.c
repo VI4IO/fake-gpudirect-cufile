@@ -11,7 +11,7 @@ static fake_dev_memory * fake_malloc(size_t size, memAttachKind type){
   return mem;
 }
 
-fake_dev_memory * fake_get_mem(void * buf){
+fake_dev_memory * fake_get_mem(void const * buf){
     fake_dev_memory * mem = (fake_dev_memory*) ((char*)buf - sizeof(fake_dev_memory));
     if(mem->magic != FMAGIC){
       return NULL;
@@ -43,28 +43,15 @@ CUresult cuCtxDestroy(CUcontext ctx){
 }
 
 CUresult cuMemAlloc(CUdeviceptr* dptr, size_t size){
-  assert(dptr);
-  fake_dev_memory * mem = fake_malloc(size, cudaMemAttachDevice);
-  *dptr = mem;
-  return CUDA_SUCCESS;
+  return cudaMalloc(dptr, size);
 }
 
 CUresult cuMemFree(CUdeviceptr dptr){
-  assert(dptr);
-  if(dptr->magic != FMAGIC){
-    return CUDA_ERROR;
-  }
-  free(dptr);
-  return CUDA_SUCCESS;
+  return cudaFree(dptr);
 }
 
 CUresult cuMemsetD8(CUdeviceptr dptr, unsigned char val, size_t count){
-  if(dptr->magic != FMAGIC){
-    return CUDA_ERROR;
-  }
-  assert(count <= dptr->size);
-  memset(dptr->buf, val, count);
-  return CUDA_SUCCESS;
+  return cudaMemset(dptr, val, count);
 }
 
 CUresult cuGetErrorName(CUresult cu, const char ** out){

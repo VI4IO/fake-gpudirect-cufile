@@ -27,14 +27,22 @@ CUfileError_t cuFileBufDeregister(const void *ptr){
 ssize_t cuFileRead(CUfileHandle_t fh, void *ptr, size_t size, off_t off, off_t devOffset){
   CUfileDescr_t * d = (CUfileDescr_t*) fh;
   assert(d->type == CU_FILE_HANDLE_TYPE_OPAQUE_FD);
-  ssize_t ret = pread(d->handle.fd, (char*) ptr + devOffset, size, off);
+  fake_dev_memory * mem = fake_get_mem(ptr);
+  if(! mem){
+    return -1;
+  }
+  ssize_t ret = pread(d->handle.fd, mem->buf + devOffset, size, off);
   return ret;
 }
 
 ssize_t cuFileWrite(CUfileHandle_t fh, const void *ptr, size_t size, off_t off, off_t devOffset){
   CUfileDescr_t * d = (CUfileDescr_t*) fh;
   assert(d->type == CU_FILE_HANDLE_TYPE_OPAQUE_FD);
-  ssize_t ret = pwrite(d->handle.fd, (char*) ptr + devOffset, size, off);
+  fake_dev_memory * mem = fake_get_mem(ptr);
+  if(! mem){
+    return -1;
+  }
+  ssize_t ret = pwrite(d->handle.fd, mem->buf + devOffset, size, off);
   return ret;
 }
 

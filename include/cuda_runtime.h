@@ -39,7 +39,7 @@ struct fake_CUcontext{
 
 typedef struct fake_CUdevice CUdevice;
 typedef struct fake_CUcontext CUcontext;
-typedef struct fake_dev_memory* CUdeviceptr;
+typedef void* CUdeviceptr;
 
 typedef enum cudaMemcpyKind {
   cudaMemcpyDeviceToHost = 1,

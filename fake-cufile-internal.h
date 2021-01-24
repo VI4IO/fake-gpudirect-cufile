@@ -19,7 +19,7 @@ struct fake_dev_memory{
   char buf[];
 };
 
-fake_dev_memory* fake_get_mem(void * buf);
+fake_dev_memory* fake_get_mem(void const * buf);
 
 
 
