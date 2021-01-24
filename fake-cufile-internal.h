@@ -5,15 +5,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #define WARN(msg) printf(msg"\n");
 
-typedef struct {
+struct fake_dev_memory{
   int magic;
   size_t size;
+  memAttachKind type;
   char buf [];
-} fake_dev_memory;
+};
 
 fake_dev_memory* fake_get_mem(void * buf);
+
+
 
 #endif

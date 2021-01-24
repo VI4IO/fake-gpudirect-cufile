@@ -24,23 +24,33 @@ typedef enum{
   CUDA_ERROR_INVALID_VALUE
 } CUresult;
 
-typedef struct{
-  int x;
-} CUdevice;
+typedef struct fake_CUdevice   fake_CUdevice;
+typedef struct fake_CUcontext  fake_CUcontext;
+typedef struct fake_dev_memory fake_dev_memory;
 
-typedef struct{
-  int x;
-} CUcontext;
-
-struct CUdeviceptr_t{
-  int x;
+struct fake_CUdevice{
+  int device;
 };
 
-typedef struct CUdeviceptr_t* CUdeviceptr;
-
-enum cudaMemcpyKind {
-  cudaMemcpyDeviceToHost
+struct fake_CUcontext{
+  int flags;
+  fake_CUdevice device;
 };
+
+typedef struct fake_CUdevice CUdevice;
+typedef struct fake_CUcontext CUcontext;
+typedef struct fake_dev_memory* CUdeviceptr;
+
+typedef enum cudaMemcpyKind {
+  cudaMemcpyDeviceToHost = 1,
+  cudaMemcpyHostToDevice = 2
+} cudaMemcpyKind;
+
+typedef enum memAttachKind {
+  cudaMemAttachGlobal = 1,
+  cudaMemAttachHost = 2,
+  cudaMemAttachDevice = 4,
+} memAttachKind;
 
 CUresult cuInit(int dev);
 CUresult cuDeviceGet(CUdevice * device, int dev);
@@ -57,11 +67,17 @@ const char * cudaGetErrorString(cudaError_t err);
 cudaError_t cudaMalloc(void **buf, size_t size);
 cudaError_t cudaFree(void *buf);
 const char * cudaGetErrorName(int err);
-cudaError_t cudaMemcpy(void * dst, void *src, size_t count, enum cudaMemcpyKind k);
+cudaError_t cudaMemcpy(void * dst, void *src, size_t count, cudaMemcpyKind k);
 
 cudaError_t cudaSetDevice(int device);
 cudaError_t cudaGetDevice(int * device);
 cudaError_t cudaMemset(void* device, int val, size_t count);
+
+
+cudaError_t cudaMallocManaged(void **buf, size_t size, memAttachKind);
+cudaError_t cudaFreeHost(void *buf);
+cudaError_t cudaMallocHost(void **buf, size_t size);
+
 
 #if __cplusplus
 }
