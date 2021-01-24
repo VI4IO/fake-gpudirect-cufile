@@ -58,7 +58,7 @@ CUresult cuCtxCreate(CUcontext* pctx, unsigned int  flags, CUdevice dev);
 CUresult cuCtxDestroy(CUcontext ctx);
 CUresult cuMemAlloc(CUdeviceptr* dptr, size_t bytesize);
 CUresult cuMemFree(CUdeviceptr dptr);
-CUresult cuMemsetD8(CUdeviceptr dstDevice, unsigned char  uc, size_t N);
+CUresult cuMemsetD8(CUdeviceptr dstDevice, unsigned char val, size_t count);
 CUresult cuGetErrorName(CUresult cu, const char ** out);
 
 

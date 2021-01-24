@@ -9,11 +9,14 @@
 
 #define WARN(msg) printf(msg"\n");
 
+#define FMAGIC 4711
+
 struct fake_dev_memory{
-  int magic;
   size_t size;
   memAttachKind type;
-  char buf [];
+  int magic;
+  char padding[4096 - 8 - 4 -4];
+  char buf[];
 };
 
 fake_dev_memory* fake_get_mem(void * buf);

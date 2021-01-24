@@ -3,8 +3,9 @@
 static int device = 0;
 
 static fake_dev_memory * fake_malloc(size_t size, memAttachKind type){
-  fake_dev_memory * mem = malloc(sizeof(fake_dev_memory) + size);
-  mem->magic = 4711;
+  fake_dev_memory * mem;
+  posix_memalign((void**) & mem, 4096, sizeof(fake_dev_memory) + size);
+  mem->magic = FMAGIC;
   mem->size = size;
   mem->type = type;
   return mem;
@@ -12,7 +13,7 @@ static fake_dev_memory * fake_malloc(size_t size, memAttachKind type){
 
 fake_dev_memory * fake_get_mem(void * buf){
     fake_dev_memory * mem = (fake_dev_memory*) ((char*)buf - sizeof(fake_dev_memory));
-    if(mem->magic != 4711){
+    if(mem->magic != FMAGIC){
       return NULL;
     }
     return mem;
@@ -50,14 +51,19 @@ CUresult cuMemAlloc(CUdeviceptr* dptr, size_t size){
 
 CUresult cuMemFree(CUdeviceptr dptr){
   assert(dptr);
-  if(dptr->magic != 4711){
+  if(dptr->magic != FMAGIC){
     return CUDA_ERROR;
   }
   free(dptr);
   return CUDA_SUCCESS;
 }
 
-CUresult cuMemsetD8(CUdeviceptr dstDevice, unsigned char uc, size_t N){
+CUresult cuMemsetD8(CUdeviceptr dptr, unsigned char val, size_t count){
+  if(dptr->magic != FMAGIC){
+    return CUDA_ERROR;
+  }
+  assert(count <= dptr->size);
+  memset(dptr->buf, val, count);
   return CUDA_SUCCESS;
 }
 
@@ -94,6 +100,19 @@ const char * cudaGetErrorName(int err){
 }
 
 cudaError_t cudaMemcpy(void * dst, void *src, size_t count, enum cudaMemcpyKind k){
+  if(k == cudaMemcpyDeviceToHost){
+    fake_dev_memory * mem = fake_get_mem(src);
+    if(! mem){
+      return cudaError;
+    }
+    assert(count <= mem->size);
+  }else if(k == cudaMemcpyHostToDevice){
+    fake_dev_memory * mem = fake_get_mem(dst);
+    if(! mem){
+      return cudaError;
+    }
+    assert(count <= mem->size);
+  }
   memcpy(dst, src, count);
   return cudaSuccess;
 }
@@ -103,7 +122,8 @@ cudaError_t cudaMemset(void* buf, int val, size_t count){
   if(! mem){
     return cudaError;
   }
-  memset(buf, val, count);
+  assert(count <= mem->size);
+  memset(mem->buf, val, count);
   return cudaSuccess;
 }
 
@@ -124,6 +144,10 @@ cudaError_t cudaMallocManaged(void **buf, size_t size, memAttachKind type){
 }
 
 cudaError_t cudaFreeHost(void *buf){
+  fake_dev_memory * mem = fake_get_mem(buf);
+  if(! mem){
+    return CUDA_ERROR;
+  }
   return cudaFree(buf);
 }
 

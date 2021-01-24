@@ -1,4 +1,4 @@
-CFLAGS=-I./include -I./cuda/include
+CFLAGS=-I./include -I./cuda/include -g3
 
 all: lib64/libcuda.so lib64/libcufile.so lib64/libcudart_static.a
 
